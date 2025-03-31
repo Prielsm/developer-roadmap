@@ -151,3 +151,17 @@ git clone --depth=1 https://github.com/kamranahmedse/developer-roadmap.git
 ## License
 
 Have a look at the [license file](./license) for details
+
+## REMOTE UPSTREAM 
+
+> Si des modifications ont été apportées au dépôt original
+
+Récupérer les mises à jour du dépot original : 
+```bash
+git fetch upstream
+```
+
+Intégrer les modifications dans votre branche principale (main) :
+```bash
+git merge upstream/main
+```

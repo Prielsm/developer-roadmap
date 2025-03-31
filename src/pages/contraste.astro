@@ -1,0 +1,14 @@
+---
+import { RoadmapsContraste } from '../components/Roadmaps/RoadmapsContraste';
+import { RoadmapsPageHeader } from '../components/Roadmaps/RoadmapsPageHeader';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title='Contraste Roadmaps'
+  description={'Step by step guides and paths to learn different tools or technologies'}
+  permalink={'/roadmaps'}
+>
+  <RoadmapsPageHeader header='Contraste Roadmaps' client:load />
+  <RoadmapsContraste client:load />
+</BaseLayout>

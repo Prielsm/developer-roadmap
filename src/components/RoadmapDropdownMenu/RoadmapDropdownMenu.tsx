@@ -1,4 +1,11 @@
-import { ChevronDown, Globe, Menu, Sparkles, Map } from 'lucide-react';
+import {
+  ChevronDown,
+  Globe,
+  Menu,
+  Sparkles,
+  Map,
+  Briefcase,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '../../hooks/use-outside-click';
 import { cn } from '../../lib/classname';
@@ -28,6 +35,13 @@ const links = [
     label: 'Community Roadmaps',
     description: 'Made by community members',
     Icon: Globe,
+    isHighlighted: false,
+  },
+  {
+    link: '/contraste',
+    label: 'Contraste Roadmaps',
+    description: 'Create by Contraste employees',
+    Icon: Briefcase,
     isHighlighted: false,
   },
 ];

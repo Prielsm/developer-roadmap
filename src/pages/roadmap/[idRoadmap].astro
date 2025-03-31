@@ -1,0 +1,21 @@
+---
+import ContrasteRoadmapEditor from '../../components/ContrasteRoadmap/ContrasteEditorRoadmap';
+import ContrasteViewerRoadmap from '../../components/ContrasteRoadmap/ContrasteViewerRoadmap';
+import { RoadmapsContraste } from '../../components/Roadmaps/RoadmapsContraste';
+import { RoadmapsPageHeader } from '../../components/Roadmaps/RoadmapsPageHeader';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export const prerender = false;
+const { idRoadmap } = Astro.params;
+console.log('hi', idRoadmap);
+
+if (!idRoadmap) return null;
+---
+
+<BaseLayout
+  title='Contraste Roadmaps'
+  description={'Step by step guides and paths to learn different tools or technologies'}
+  permalink={`/r/${idRoadmap}`}
+>
+  <ContrasteViewerRoadmap client:load name={idRoadmap} />
+</BaseLayout>

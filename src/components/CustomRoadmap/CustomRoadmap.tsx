@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '../../stores/query-client';
 import { httpGet, type FetchError } from '../../lib/query-http';
 import { useCustomRoadmap } from '../../hooks/use-custom-roadmap';
+import TestRoadmap from '../../data/test.json';
 
 export const allowedLinkTypes = [
   'video',
@@ -75,11 +76,13 @@ export function CustomRoadmap(props: CustomRoadmapProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [roadmap, setRoadmap] = useState<GetRoadmapResponse | null>(null);
 
-  const { data, error } = useCustomRoadmap({
-    id,
-    secret,
-    slug,
-  });
+  // const { data, error } = useCustomRoadmap({
+  //   id,
+  //   secret,
+  //   slug,
+  // });
+
+  const data = TestRoadmap;
 
   useEffect(() => {
     if (!data) {
@@ -93,22 +96,22 @@ export function CustomRoadmap(props: CustomRoadmapProps) {
     hideRoadmapLoader();
   }, [data]);
 
-  useEffect(() => {
-    if (!error) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!error) {
+  //     return;
+  //   }
 
-    setIsLoading(false);
-    hideRoadmapLoader();
-  }, [error]);
+  //   setIsLoading(false);
+  //   hideRoadmapLoader();
+  // }, [error]);
 
   if (isLoading) {
     return null;
   }
 
-  if (error) {
-    return <RestrictedPage error={error} />;
-  }
+  // if (error) {
+  //   return <RestrictedPage error={error} />;
+  // }
 
   return (
     <>
