@@ -547,22 +547,6 @@ export function RoadmapsPage() {
 
   return (
     <div className="border-t bg-gray-100">
-      <button
-        onClick={() => {
-          setIsFilterOpen(!isFilterOpen);
-        }}
-        id="filter-button"
-        className={cn(
-          '-mt-1 flex w-full items-center justify-center bg-gray-300 py-2 text-sm text-black focus:shadow-none focus:outline-0 sm:hidden',
-          {
-            'mb-3': !isFilterOpen,
-          },
-        )}
-      >
-        {!isFilterOpen && <Filter size={13} className="mr-1" />}
-        {isFilterOpen && <X size={13} className="mr-1" />}
-        Categories
-      </button>
       <div className="container relative flex flex-col gap-4 sm:flex-row">
         <div
           className={cn(

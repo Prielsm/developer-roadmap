@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -11,63 +10,46 @@ import 'reactflow/dist/style.css';
 import { HeartHandshake, X } from 'lucide-react';
 import { ResourceListSeparator } from '../TopicDetail/ResourceListSeparator';
 import { TopicDetailLink } from '../TopicDetail/TopicDetailLink';
-import myRoadmap from './myRoadmap.json';
-
-interface RoadmapData {
-  nodes: Node[];
-  edges: Edge[];
-}
-
-interface NodeData {
-  label: string;
-  description?: string;
-  links?: { title: string; url: string }[];
-}
+import roadmapsData from './roadmaps.json';
+import type { IApiRoadmap, NodeData } from './roadmaps.interface';
+import ContrasteHeaderRoadmap from './ContrasteHeaderRoadmap';
+import ResourceProgressStats from '../ResourceProgressStats.astro';
 
 export default function ContrasteViewerRoadmap({ name }: { name: string }) {
-  const { id } = useParams<{ id: string }>();
-  console.log('name', name);
-
-  // const navigate = useNavigate();
-  const [roadmap, setRoadmap] = useState<RoadmapData | null>(myRoadmap);
   const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
-  const title = name.replace(/\s+/g, '_').toLowerCase();
-  console.log('title', title);
 
-  // useEffect(() => {
-  //   fetch(`http://localhost:5000/roadmap/${id}`)
-  //     .then((res) => res.json())
-  //     .then((data) => setRoadmap(data))
-  //     .catch((err) => console.error('Error fetching roadmap:', err));
-  // }, [id]);
+  const roadmap = roadmapsData.find(
+    (roadmap) => roadmap.title.replace(/\s+/g, '-').toLowerCase() === name,
+  );
 
   if (!roadmap) return <p>Chargement...</p>;
 
+  const styles = {
+    width: '100%',
+    height: 600,
+    maxWidth: 830,
+    margin: '0 auto',
+  };
+
   return (
-    <div className="relative h-screen p-4">
-      <h1>{title}</h1>
-      <button
-        onClick={
-          () => {
-            console.log('test');
-          }
-
-          // navigate(`/roadmap-editor/${id}`, { state: { roadmap } })
-        }
-        className="mb-4 cursor-pointer rounded bg-blue-500 px-4 py-2 text-white"
-      >
-        Modifier cette roadmap
-      </button>
-
-      <ReactFlow
-        nodes={roadmap.nodes}
-        edges={roadmap.edges}
-        onNodeClick={(_, node) => setSelectedNode(node as Node<NodeData>)}
-      >
-        <Background />
-        <Controls />
-        <MiniMap />
-      </ReactFlow>
+    <div className="relative h-full p-4">
+      <ContrasteHeaderRoadmap roadmap={roadmap as IApiRoadmap} />
+      {roadmap.jsonData && (
+        <ReactFlow
+          nodes={roadmap.jsonData.nodes}
+          edges={roadmap.jsonData.edges}
+          onNodeClick={(_, node) => setSelectedNode(node as Node<NodeData>)}
+          style={styles}
+          ref={(element) => {
+            if (element)
+              element.style.setProperty('height', '600px', 'important');
+          }}
+        >
+          <Background />
+          <Controls />
+          <MiniMap />
+        </ReactFlow>
+      )}
 
       {selectedNode && (
         <div className={'relative z-[92]'}>
@@ -84,10 +66,6 @@ export default function ContrasteViewerRoadmap({ name }: { name: string }) {
             </button>
             <div className="prose prose-quoteless prose-h1:mb-2.5 prose-h1:mt-7 prose-h1:text-balance prose-h2:mb-3 prose-h2:mt-0 prose-h3:mb-[5px] prose-h3:mt-[10px] prose-p:mb-2 prose-p:mt-0 prose-blockquote:font-normal prose-blockquote:not-italic prose-blockquote:text-gray-700 prose-li:m-0 prose-li:mb-0.5">
               {selectedNode.data.label && <h1>{selectedNode.data.label}</h1>}
-              {/* <div
-                      id="topic-content"
-                      dangerouslySetInnerHTML={{ __html: topicHtml }}
-                    /> */}
               {selectedNode.data.description && (
                 <p>{selectedNode.data.description}</p>
               )}
@@ -108,18 +86,6 @@ export default function ContrasteViewerRoadmap({ name }: { name: string }) {
                           url={link.url}
                           type={'official'}
                           title={link.title}
-                          // onClick={() => {
-                          //   // if it is one of our roadmaps, we want to track the click
-                          //   if (canSubmitContribution) {
-                          //     const parsedUrl = parseUrl(link.url);
-
-                          //     window.fireEvent({
-                          //       category: "TopicResourceClick",
-                          //       action: `Click: ${parsedUrl.hostname}`,
-                          //       label: `${resourceType} / ${resourceId} / ${topicId} / ${link.url}`,
-                          //     });
-                          //   }
-                          // }}
                         />
                       </li>
                     );
@@ -128,6 +94,7 @@ export default function ContrasteViewerRoadmap({ name }: { name: string }) {
               </>
             )}
           </div>
+          <div className="fixed inset-0 z-30 bg-gray-900 bg-opacity-50 dark:bg-opacity-80"></div>
         </div>
       )}
     </div>

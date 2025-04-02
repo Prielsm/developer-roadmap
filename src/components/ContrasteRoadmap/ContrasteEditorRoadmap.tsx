@@ -1,4 +1,4 @@
-import { ChevronDown, X } from 'lucide-react';
+import { Pencil, X } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import ReactFlow, {
   addEdge,
@@ -12,6 +12,7 @@ import ReactFlow, {
   type Connection,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import roadmapsData from './roadmaps.json';
 
 type Link = {
   title: string;
@@ -21,10 +22,7 @@ type Link = {
 type NodeData = {
   label: string;
   description: string;
-  links: {
-    title: string;
-    url: string;
-  }[];
+  links: Link[];
 };
 
 const initialNodes: Node<NodeData>[] = [
@@ -38,20 +36,31 @@ const initialNodes: Node<NodeData>[] = [
 
 const initialEdges: Edge[] = [];
 
-export default function ContrasteRoadmapEditor() {
-  // const { id } = useParams<{ id?: string }>();
-  // const location = useLocation();
+export default function ContrasteRoadmapEditor({ name }: { name?: string }) {
+  const roadmap = roadmapsData.find(
+    (roadmap) => roadmap.title.replace(/\s+/g, '-').toLowerCase() === name,
+  );
 
-  const [nodes, setNodes, onNodesChange] =
-    useNodesState<NodeData>(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [roadmapTitle, setRoadmapTitle] = useState(
+    roadmap?.title ?? 'Ma roadmap',
+  );
+  const [roadmapDescription, setRoadmapDescription] = useState(
+    roadmap?.description ?? 'Ma description',
+  );
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(
+    roadmap?.jsonData?.nodes ?? initialNodes,
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    roadmap?.jsonData?.edges ?? initialEdges,
+  );
   const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
   const [nodeData, setNodeData] = useState<NodeData>({
     label: '',
     description: '',
     links: [],
   });
-  const [roadmapTitle, setRoadmapTitle] = useState('Ma roadmap');
 
   const onConnect = useCallback(
     (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
@@ -71,8 +80,14 @@ export default function ContrasteRoadmapEditor() {
   const saveRoadmap = async () => {
     const roadmapData = {
       title: roadmapTitle,
-      nodes,
-      edges,
+      description: roadmapDescription,
+      jsonData: {
+        nodes: nodes,
+        edges: edges,
+      },
+      users: [],
+      progress: null,
+      type: 'frontend',
     };
 
     console.log('data', roadmapData);
@@ -119,23 +134,87 @@ export default function ContrasteRoadmapEditor() {
     const updatedLinks = nodeData.links.filter((_, i) => i !== index);
     setNodeData({ ...nodeData, links: updatedLinks });
   };
-
-  console.log('nodes', nodes);
-
   return (
     <div>
       <div className="flex gap-2 p-4">
-        <input
-          type="text"
-          placeholder="Enter Roadmap Title"
-          value={roadmapTitle}
-          onChange={(e) => setRoadmapTitle(e.target.value)}
-          className="w-1/4 rounded border px-2 py-1"
-        />
+        <div className="flex w-1/4 items-center justify-between rounded border bg-gray-100 p-2">
+          <div>
+            <h2 className="text-lg font-bold">{roadmapTitle}</h2>
+            <p className="text-sm text-gray-600">{roadmapDescription}</p>
+          </div>
+          <button
+            onClick={() => setIsEditing(!isEditing)}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <Pencil size={18} />
+          </button>
+        </div>
+        {isEditing && (
+          <div className="popup fixed left-0 right-0 top-0 z-[99] flex h-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black/50">
+            <div className="relative h-full w-full max-w-md p-4 md:h-auto">
+              <div className="popup-body relative h-full rounded-lg bg-white shadow">
+                <form className="p-4">
+                  <h2 className="text-lg font-medium text-gray-900">
+                    Roadmap Meta
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Ajoute un titre et une description à ta roadmap.
+                  </p>
+                  <div className="mt-4">
+                    <label
+                      htmlFor="title"
+                      className="block text-xs uppercase text-gray-400"
+                    >
+                      Titre
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        name="title"
+                        id="title"
+                        className="block w-full rounded-md border border-gray-300 px-2.5 py-2 outline-none focus:border-black sm:text-sm"
+                        placeholder="Entrez le titre de la roadmap"
+                        value={roadmapTitle}
+                        onChange={(e) => setRoadmapTitle(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <label
+                      htmlFor="description"
+                      className="block text-xs uppercase text-gray-400"
+                    >
+                      Description
+                    </label>
+                    <div className="relative mt-1">
+                      <textarea
+                        id="description"
+                        name="description"
+                        className="block h-24 w-full resize-none rounded-md border border-gray-300 px-2.5 py-2 outline-none focus:border-black sm:text-sm"
+                        placeholder="Entrez la description"
+                        value={roadmapDescription}
+                        onChange={(e) => setRoadmapDescription(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      type="button"
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-black outline-none hover:border-gray-300 hover:bg-gray-50 focus:border-gray-300 focus:bg-gray-100"
+                      onClick={() => setIsEditing(!isEditing)}
+                    >
+                      Fermer
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
 
         <button
           onClick={saveRoadmap}
-          className="ml-auto flex w-[164px] items-center justify-center rounded-[5px] bg-slate-900 px-4 text-white transition-colors hover:bg-slate-800"
+          className="ml-auto flex h-9 w-[164px] items-center justify-center rounded-[5px] bg-slate-900 px-4 text-white transition-colors hover:bg-slate-800"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -374,7 +453,7 @@ export default function ContrasteRoadmapEditor() {
             onClick={updateNodeData}
             className="flex h-8 w-full items-center justify-center rounded-md bg-gray-200 p-1 px-4 text-sm font-medium hover:bg-gray-200/80"
           >
-            Save
+            Sauvegarder
           </button>
         </aside>
       )}
